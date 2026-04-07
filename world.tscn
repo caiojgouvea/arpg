@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cd3jdemyynci0" path="res://player.gd" id="1_f3sb7"]
 [ext_resource type="Script" uid="uid://b4xv2n8dpqr7k" path="res://floor.gd" id="2_floor"]
+[ext_resource type="Script" uid="uid://c9rmt3xkwfh2q" path="res://cursor.gd" id="3_cursor"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fj7yv"]
 
@@ -28,3 +29,7 @@ color = Color(1, 0, 1, 1)
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=932134375]
 position_smoothing_enabled = true
 position_smoothing_speed = 5.0
+
+[node name="Cursor" type="Node2D" parent="."]
+z_index = 10
+script = ExtResource("3_cursor")
