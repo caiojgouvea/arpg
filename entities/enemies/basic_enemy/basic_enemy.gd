@@ -5,6 +5,9 @@ const DAMAGE_NUMBER_SCENE = preload("res://ui/damage_number/damage_number.tscn")
 const SPEED = 80.0
 const DETECTION_RANGE = 350.0
 const MAX_HEALTH = 1000
+const ATTACK_RANGE = 35.0
+const ATTACK_DAMAGE = 8
+const ATTACK_COOLDOWN = 1.5
 
 # Configuração de cada tipo de DOT: tick_rate, duration, max_stacks, color, label
 const DAMAGE_COLORS := {
@@ -21,6 +24,8 @@ const DOT_CONFIG := {
 var health := MAX_HEALTH
 var _player: Node2D = null
 var _dots := {}  # { type: {stacks, remaining, timer} }
+var _attack_cd := 0.0
+var _attack_flash := 0.0
 
 
 func _ready() -> void:
@@ -29,12 +34,36 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _player != null and global_position.distance_to(_player.global_position) <= DETECTION_RANGE:
-		velocity = (_player.global_position - global_position).normalized() * SPEED
+	if _attack_cd > 0.0:
+		_attack_cd -= delta
+	if _attack_flash > 0.0:
+		_attack_flash -= delta
+		if _attack_flash <= 0.0:
+			queue_redraw()
+
+	if _player != null:
+		var dist := global_position.distance_to(_player.global_position)
+		if dist <= ATTACK_RANGE:
+			velocity = Vector2.ZERO
+			if _attack_cd <= 0.0:
+				_attack_player()
+		elif dist <= DETECTION_RANGE:
+			velocity = (_player.global_position - global_position).normalized() * SPEED
+		else:
+			velocity = Vector2.ZERO
 	else:
 		velocity = Vector2.ZERO
+
 	move_and_slide()
 	_tick_dots(delta)
+
+
+func _attack_player() -> void:
+	_attack_cd = ATTACK_COOLDOWN
+	_attack_flash = 0.12
+	queue_redraw()
+	if _player.has_method("take_damage"):
+		_player.take_damage(ATTACK_DAMAGE)
 
 
 func _tick_dots(delta: float) -> void:
@@ -99,7 +128,8 @@ func _draw() -> void:
 	var pts := PackedVector2Array([
 		Vector2(0, -20), Vector2(16, 0), Vector2(0, 20), Vector2(-16, 0),
 	])
-	draw_colored_polygon(pts, Color(0.7, 0.1, 0.1))
+	var body_color := Color(1.0, 0.9, 0.9) if _attack_flash > 0.0 else Color(0.7, 0.1, 0.1)
+	draw_colored_polygon(pts, body_color)
 	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[3], pts[0]]), outline, outline_w)
 
 	# Barra de HP

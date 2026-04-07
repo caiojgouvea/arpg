@@ -27,6 +27,8 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
+	if body.is_in_group("player"):
+		return
 	if body.has_method("take_damage"):
 		var dmg_type := _dot_type if _dot_type != "" else "physical"
 		body.take_damage(DAMAGE, dmg_type)

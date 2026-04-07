@@ -54,6 +54,7 @@ var _last_direction := Vector2.DOWN
 var _attack_cooldown := 0.0
 var _skill_cooldowns := {"fire": 0.0, "poison": 0.0}
 var _skill_bar: Node = null
+var _hit_flash := 0.0
 
 
 func _ready() -> void:
@@ -98,6 +99,15 @@ func _tick_timers(delta: float) -> void:
 		_dash_timer -= delta
 		if _dash_timer <= 0.0:
 			_is_dashing = false
+	if _hit_flash > 0.0:
+		_hit_flash -= delta
+		modulate = Color(1.0, 0.25, 0.25) if _hit_flash > 0.0 else Color.WHITE
+
+
+func take_damage(amount: int, _type: String = "physical") -> void:
+	health = max(health - amount, 0)
+	_hit_flash = 0.15
+	modulate = Color(1.0, 0.25, 0.25)
 
 
 func _update_folego(delta: float) -> void:
