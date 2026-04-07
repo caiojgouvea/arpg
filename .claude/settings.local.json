@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p entities/player skills/arrow world)",
+      "Bash(mv player.gd player.gd.uid entities/player/)",
+      "Bash(mv arrow.gd arrow.gd.uid arrow.tscn skills/arrow/)",
+      "Bash(mv floor.gd floor.gd.uid cursor.gd cursor.gd.uid world.tscn world/)"
+    ]
+  }
+}
