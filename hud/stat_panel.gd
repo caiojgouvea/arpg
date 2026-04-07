@@ -25,7 +25,14 @@ var _btn_rects := {}
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
+	add_to_group("stat_panel")
 	_player = get_tree().get_first_node_in_group("player")
+
+
+func open() -> void:
+	_open = true
+	get_tree().paused = true
+	queue_redraw()
 
 
 func _input(event: InputEvent) -> void:

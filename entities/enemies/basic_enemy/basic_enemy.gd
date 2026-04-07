@@ -4,10 +4,11 @@ const DAMAGE_NUMBER_SCENE = preload("res://ui/damage_number/damage_number.tscn")
 
 const SPEED = 80.0
 const DETECTION_RANGE = 350.0
-const MAX_HEALTH = 1000
+const MAX_HEALTH = 100
 const ATTACK_RANGE = 35.0
-const ATTACK_DAMAGE = 8
+const ATTACK_DAMAGE = 20
 const ATTACK_COOLDOWN = 1.5
+const XP_REWARD = 25
 
 # Configuração de cada tipo de DOT: tick_rate, duration, max_stacks, color, label
 const DAMAGE_COLORS := {
@@ -90,7 +91,23 @@ func take_damage(amount: int, type: String = "physical") -> void:
 	var color: Color = DAMAGE_COLORS.get(type, Color.WHITE)
 	_spawn_damage_number(amount, color)
 	if health <= 0:
-		queue_free()
+		_die()
+
+
+func _die() -> void:
+	if _player != null and _player.has_method("gain_xp"):
+		_player.gain_xp(XP_REWARD)
+	_spawn_replacement()
+	queue_free()
+
+
+func _spawn_replacement() -> void:
+	var enemy: Node2D = load("res://entities/enemies/basic_enemy/basic_enemy.tscn").instantiate()
+	get_parent().add_child(enemy)
+	var angle := randf() * TAU
+	var dist := randf_range(350.0, 550.0)
+	var origin := _player.global_position if _player != null else global_position
+	enemy.global_position = origin + Vector2(cos(angle), sin(angle)) * dist
 
 
 func apply_dot(type: String) -> void:

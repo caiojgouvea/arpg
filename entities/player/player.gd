@@ -20,9 +20,11 @@ const MANA_REGEN = 5.0
 var fury := 0
 var instinct := 0
 var arcane := 0
-var attribute_points := 10000
+var attribute_points := 5
 var level := 1
 var talent_points := 0
+var xp := 0
+var xp_to_next := 30
 
 # Stats derivados — calculados em tempo real
 var MAX_HEALTH: int:
@@ -46,6 +48,8 @@ var health := BASE_HEALTH
 var folego := BASE_FOLEGO
 var mana := BASE_MANA
 
+var dead := false
+
 var _is_dashing := false
 var _dash_timer := 0.0
 var _dash_cooldown := 0.0
@@ -55,6 +59,7 @@ var _attack_cooldown := 0.0
 var _skill_cooldowns := {"fire": 0.0, "poison": 0.0}
 var _skill_bar: Node = null
 var _hit_flash := 0.0
+var _level_up_flash := 0.0
 
 
 func _ready() -> void:
@@ -62,6 +67,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if dead:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	look_at(get_global_mouse_position())
 	_tick_timers(delta)
 	_update_folego(delta)
@@ -81,6 +90,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if dead:
+		return
 	if event.is_action_pressed("skill"):
 		_skill()
 	elif event.is_action_pressed("dash"):
@@ -99,15 +110,44 @@ func _tick_timers(delta: float) -> void:
 		_dash_timer -= delta
 		if _dash_timer <= 0.0:
 			_is_dashing = false
-	if _hit_flash > 0.0:
+	if _level_up_flash > 0.0:
+		_level_up_flash -= delta
+		modulate = Color(1.0, 1.0, 0.0) if int(_level_up_flash * 8) % 2 == 0 else Color.WHITE
+		if _level_up_flash <= 0.0:
+			modulate = Color.WHITE
+	elif _hit_flash > 0.0:
 		_hit_flash -= delta
 		modulate = Color(1.0, 0.25, 0.25) if _hit_flash > 0.0 else Color.WHITE
 
 
 func take_damage(amount: int, _type: String = "physical") -> void:
+	if dead:
+		return
 	health = max(health - amount, 0)
 	_hit_flash = 0.15
 	modulate = Color(1.0, 0.25, 0.25)
+	if health <= 0:
+		_die()
+
+
+func _die() -> void:
+	dead = true
+	modulate = Color(0.4, 0.0, 0.0, 0.6)
+
+
+func gain_xp(amount: int) -> void:
+	xp += amount
+	while xp >= xp_to_next:
+		xp -= xp_to_next
+		_level_up()
+
+
+func _level_up() -> void:
+	level += 1
+	attribute_points += 5
+	talent_points += 1
+	xp_to_next = 30 * level
+	_level_up_flash = 1.5
 
 
 func _update_folego(delta: float) -> void:
