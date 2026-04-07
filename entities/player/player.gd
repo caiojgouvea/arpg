@@ -11,7 +11,7 @@ const DASH_SPEED = 600.0
 const DASH_DURATION = 0.15
 const DASH_COOLDOWN = 1.0
 const ATTACK_COOLDOWN = 0.3
-const SKILL_COOLDOWN = 3.0
+const SKILL_COOLDOWN = 1.5
 const SKILL_FOLEGO_COST = 30.0
 
 const MAX_HEALTH = 100
@@ -109,12 +109,12 @@ func _skill() -> void:
 
 	# Mouse perto = leque aberto, mouse longe = leque fechado
 	var dist := global_position.distance_to(mouse_pos)
-	var spread := remap(dist, 40.0, 600.0, 0.5, 0.04)
-	spread = clampf(spread, 0.04, 0.5)
+	var spread := remap(dist, 40.0, 600.0, 0.2, 0.003)
+	spread = clampf(spread, 0.003, 0.2)
 
 	for angle in [-spread, 0.0, spread]:
 		var dir := base_dir.rotated(angle)
 		var arrow := ARROW_SCENE.instantiate()
 		get_parent().add_child(arrow)
 		arrow.global_position = global_position
-		arrow.init(dir, fire_color)
+		arrow.init(dir, fire_color, true)
