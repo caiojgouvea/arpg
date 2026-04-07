@@ -1,11 +1,16 @@
 [gd_scene format=3 uid="uid://bgpksmouulo7t"]
 
 [ext_resource type="Script" uid="uid://cd3jdemyynci0" path="res://player.gd" id="1_f3sb7"]
+[ext_resource type="Script" uid="uid://b4xv2n8dpqr7k" path="res://floor.gd" id="2_floor"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fj7yv"]
 
 [node name="World" type="Node2D" unique_id=1054924433]
 y_sort_enabled = true
+
+[node name="Floor" type="Node2D" parent="."]
+z_index = -1
+script = ExtResource("2_floor")
 
 [node name="Player" type="CharacterBody2D" parent="." unique_id=2139955896]
 script = ExtResource("1_f3sb7")
