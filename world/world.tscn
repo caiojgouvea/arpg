@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://b4xv2n8dpqr7k" path="res://world/floor.gd" id="2_floor"]
 [ext_resource type="Script" uid="uid://c9rmt3xkwfh2q" path="res://world/cursor.gd" id="3_cursor"]
 [ext_resource type="PackedScene" uid="uid://g8pv3cxslm1j7" path="res://entities/enemies/basic_enemy/basic_enemy.tscn" id="4_enemy"]
+[ext_resource type="Script" uid="uid://h3qt7ybwxnck5" path="res://hud/hud.gd" id="5_hud"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fj7yv"]
 
@@ -37,3 +38,8 @@ script = ExtResource("3_cursor")
 
 [node name="BasicEnemy" parent="." instance=ExtResource("4_enemy")]
 position = Vector2(200, 100)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Bars" type="Node2D" parent="HUD"]
+script = ExtResource("5_hud")

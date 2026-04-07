@@ -14,9 +14,12 @@ const ATTACK_COOLDOWN = 0.3
 const SKILL_COOLDOWN = 3.0
 const SKILL_FOLEGO_COST = 30.0
 
+const MAX_HEALTH = 100
 const MAX_FOLEGO = 100.0
 const FOLEGO_REGEN = 25.0  # por segundo em movimento
 const FOLEGO_DRAIN = 10.0  # por segundo parado
+
+var health := MAX_HEALTH
 
 var folego := MAX_FOLEGO
 
