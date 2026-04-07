@@ -80,6 +80,38 @@ Itens têm requisitos de atributos. Qualquer classe pode usar qualquer item se i
 
 ---
 
+## SISTEMA DE DANO
+
+### Tipos de Dano
+
+| Tipo | Categoria | Descrição |
+|------|-----------|-----------|
+| **Dano Direto** | Instantâneo | Dano aplicado de uma vez no impacto — base de ataques físicos e mágicos |
+| **Damage Over Time (DOT)** | Contínuo | Dano aplicado em ticks ao longo do tempo — não pode matar instantaneamente, mas acumula pressão |
+
+### Damage Over Time (DOT)
+
+Dano aplicado em intervalos regulares após uma condição ser ativada (status, habilidade, item).
+
+**Regras gerais:**
+- DOT **não pode matar** de tick único — deixa o alvo em 1 HP se o tick mataria (a definir)
+- DOT é **stackável** — múltiplas aplicações acumulam e o dano soma
+- Cada aplicação tem duração própria; nova aplicação **refresha** o timer
+- Cap de stacks por fonte de DOT: **10 stacks** (padrão, pode variar por skill/item)
+
+**Os 4 efeitos de status do jogo:**
+
+| Status | Ícone | Atributo | Categoria | Implementado | Mecânica |
+|--------|-------|----------|-----------|:---:|---------|
+| **Fogo** | 🔥 | Arcano / Instinto | DOT | ✅ | Queimadura stackável — 1 × stacks por tick, 3 ticks/seg, cap 10, duração 3s |
+| **Sangramento** | 🩸 | Fúria | DOT | ❌ | A definir |
+| **Veneno** | 🟢 | Instinto | DOT | ❌ | A definir |
+| **Congelamento** | 🧊 | Arcano | DOT / Controle | ❌ | A definir |
+| **Sombrio** | 🌑 | Arcano | DOT / Debuff | ❌ | A definir |
+| **Corrupção** | 🟣 | Arcano | DOT / Debuff | ❌ | A definir |
+
+---
+
 ## SKILLS
 
 - **Abertas para qualquer classe** — sem restrição de runa ou gem
