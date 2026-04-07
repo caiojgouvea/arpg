@@ -20,12 +20,15 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	if _player == null:
 		return
-	var hp_ratio: float = float(_player.health) / float(_player.MAX_HEALTH)
-	var fo_ratio: float = float(_player.folego) / float(_player.MAX_FOLEGO)
-	_draw_bar(MARGIN, hp_ratio, Color(0.85, 0.15, 0.15),
+	var hp_ratio: float  = float(_player.health)  / float(_player.MAX_HEALTH)
+	var fo_ratio: float  = float(_player.folego)  / float(_player.MAX_FOLEGO)
+	var mn_ratio: float  = float(_player.mana)    / float(_player.MAX_MANA)
+	_draw_bar(MARGIN,                                hp_ratio, Color(0.85, 0.15, 0.15),
 			"%d/%d" % [_player.health, _player.MAX_HEALTH])
-	_draw_bar(MARGIN + Vector2(0.0, BAR_H + GAP), fo_ratio, Color(0.15, 0.75, 0.25),
+	_draw_bar(MARGIN + Vector2(0.0, BAR_H + GAP),    fo_ratio, Color(0.15, 0.75, 0.25),
 			"%d/%d" % [int(_player.folego), int(_player.MAX_FOLEGO)])
+	_draw_bar(MARGIN + Vector2(0.0, (BAR_H + GAP)*2), mn_ratio, Color(0.15, 0.35, 0.9),
+			"%d/%d" % [int(_player.mana), int(_player.MAX_MANA)])
 
 
 func _draw_bar(pos: Vector2, ratio: float, color: Color, label: String) -> void:

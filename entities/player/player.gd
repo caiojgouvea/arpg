@@ -2,21 +2,49 @@ extends CharacterBody2D
 
 const ARROW_SCENE = preload("res://skills/arrow/arrow.tscn")
 
-const SPEED = 200.0
+const BASE_SPEED = 200.0
 const DASH_SPEED = 600.0
 const DASH_DURATION = 0.15
 const DASH_COOLDOWN = 1.0
-const ATTACK_COOLDOWN = 0.3
+const BASE_ATTACK_COOLDOWN = 0.3
 const SKILL_FOLEGO_COST = 30.0
 const SKILL_COOLDOWNS := {"fire": 1.5, "poison": 0.25}
 
-const MAX_HEALTH = 100
-const MAX_FOLEGO = 100.0
+const BASE_HEALTH = 100
+const BASE_FOLEGO = 100.0
+const BASE_MANA = 100.0
 const FOLEGO_REGEN = 25.0
-const FOLEGO_DRAIN = 10.0
+const MANA_REGEN = 5.0
 
-var health := MAX_HEALTH
-var folego := MAX_FOLEGO
+# Atributos
+var fury := 0
+var instinct := 0
+var arcane := 0
+var attribute_points := 10000
+var level := 1
+var talent_points := 0
+
+# Stats derivados — calculados em tempo real
+var MAX_HEALTH: int:
+	get: return BASE_HEALTH + fury * 5
+var MAX_FOLEGO: float:
+	get: return BASE_FOLEGO + instinct * 5.0
+var MAX_MANA: float:
+	get: return BASE_MANA + arcane * 5.0
+var move_speed: float:
+	get: return BASE_SPEED * (1.0 + instinct * 0.005)
+var attack_speed: float:
+	get: return 1.0 + instinct * 0.02
+var physical_damage: int:
+	get: return fury * 2
+var magic_damage: int:
+	get: return arcane * 2
+var crit_chance: float:
+	get: return instinct * 0.003
+
+var health := BASE_HEALTH
+var folego := BASE_FOLEGO
+var mana := BASE_MANA
 
 var _is_dashing := false
 var _dash_timer := 0.0
@@ -43,7 +71,7 @@ func _physics_process(delta: float) -> void:
 		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 		if direction != Vector2.ZERO:
 			_last_direction = direction
-		velocity = direction * SPEED
+		velocity = direction * move_speed
 
 	if Input.is_action_pressed("attack") and _attack_cooldown <= 0.0:
 		_attack()
@@ -75,12 +103,11 @@ func _tick_timers(delta: float) -> void:
 func _update_folego(delta: float) -> void:
 	if velocity.length() > 10.0:
 		folego = minf(folego + FOLEGO_REGEN * delta, MAX_FOLEGO)
-	else:
-		folego = maxf(folego - FOLEGO_DRAIN * delta, 0.0)
+	mana = minf(mana + MANA_REGEN * delta, MAX_MANA)
 
 
 func _attack() -> void:
-	_attack_cooldown = ATTACK_COOLDOWN
+	_attack_cooldown = BASE_ATTACK_COOLDOWN / attack_speed
 	var dir := (get_global_mouse_position() - global_position).normalized()
 	var arrow := ARROW_SCENE.instantiate()
 	get_parent().add_child(arrow)
@@ -109,7 +136,8 @@ func _skill() -> void:
 
 	if _skill_cooldowns.get(selected, 0.0) > 0.0 or folego < SKILL_FOLEGO_COST:
 		return
-	_skill_cooldowns[selected] = SKILL_COOLDOWNS.get(selected, 1.5)
+	var base_cd: float = SKILL_COOLDOWNS.get(selected, 1.5)
+	_skill_cooldowns[selected] = base_cd / attack_speed
 	folego -= SKILL_FOLEGO_COST
 
 	match selected:
@@ -122,7 +150,6 @@ func _cast_fire_arrows() -> void:
 	var base_dir := (mouse_pos - global_position).normalized()
 	var dist := global_position.distance_to(mouse_pos)
 	var spread := clampf(remap(dist, 40.0, 600.0, 0.2, 0.003), 0.003, 0.2)
-
 	for angle in [-spread, 0.0, spread]:
 		var arrow := ARROW_SCENE.instantiate()
 		get_parent().add_child(arrow)

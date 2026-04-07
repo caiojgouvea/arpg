@@ -28,14 +28,40 @@ Um Deus (nome indefinido) criou um mundo que considera perfeito — povoado por 
 
 ## ATRIBUTOS
 
-| Atributo | Cor | Conceito | Mecânica |
-|----------|-----|----------|----------|
-| **Fúria** | 🔴 Vermelho | Poder visceral, brutalidade | Dano físico, resistência, vigor |
-| **Instinto** | 🟢 Verde | Reflexo, precisão, sobrevivência | Velocidade, crítico, esquiva |
-| **Arcano** | 🟣 Roxo | Domínio sobre forças além do natural | Poder de magias, mana, potência de itens raros |
+| Atributo | Cor | Conceito | Efeito por ponto |
+|----------|-----|----------|-----------------|
+| **Fúria** | 🔴 Vermelho | Poder visceral, brutalidade | +2 dano físico, +5 HP máximo |
+| **Instinto** | 🟢 Verde | Reflexo, precisão, sobrevivência | +0.5% velocidade, +2% atk speed, +0.3% crítico, +5 Fôlego máximo |
+| **Arcano** | 🟣 Roxo | Domínio sobre forças além do natural | +2 dano mágico, +5 Mana máximo |
+
+> Valores por ponto sujeitos a ajuste no playteste.
+
+**Recursos (todo personagem tem os dois):**
+
+| Recurso | Cor | Recarrega | Usado por |
+|---------|-----|-----------|-----------|
+| **Fôlego** | 🟢 Verde | Andando | Habilidades físicas e de Instinto (Arqueiro) |
+| **Mana** | 🔵 Azul | Passivamente (5/seg base) | Magias e habilidades de Arcano (Mago) |
 
 **Regra de builds híbridas:**
 Itens têm requisitos de atributos. Qualquer classe pode usar qualquer item se investir nos atributos certos na árvore de talentos. A restrição é natural — um Brutamontes com pouco Arcano conjura magias fracas.
+
+---
+
+## SISTEMA DE PROGRESSÃO
+
+### Level e Pontos
+
+- Personagem começa no nível 1
+- Ao upar: **10 pontos de atributo** + **1 ponto de talento**
+- Pontos de atributo são distribuídos livremente entre Fúria, Instinto e Arcano
+- Pontos de talento são gastos na árvore de talentos (sistema separado, a implementar)
+- Não há cap de nível definido — grinding infinito é o objetivo
+
+### XP e Level Up
+
+- Sistema de XP a definir (curva de progressão, quanto cada inimigo dá)
+- [ ] Definir fórmula de XP necessário por nível
 
 ---
 
