@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://c9rmt3xkwfh2q" path="res://world/cursor.gd" id="3_cursor"]
 [ext_resource type="PackedScene" uid="uid://g8pv3cxslm1j7" path="res://entities/enemies/basic_enemy/basic_enemy.tscn" id="4_enemy"]
 [ext_resource type="Script" uid="uid://h3qt7ybwxnck5" path="res://hud/hud.gd" id="5_hud"]
+[ext_resource type="Script" uid="uid://n2pv8cxwqtm4r" path="res://hud/skill_bar.gd" id="6_skillbar"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fj7yv"]
 
@@ -43,3 +44,6 @@ position = Vector2(200, 100)
 
 [node name="Bars" type="Node2D" parent="HUD"]
 script = ExtResource("5_hud")
+
+[node name="SkillBar" type="Node2D" parent="HUD"]
+script = ExtResource("6_skillbar")

@@ -5,15 +5,16 @@ const DAMAGE_NUMBER_SCENE = preload("res://ui/damage_number/damage_number.tscn")
 const SPEED = 80.0
 const DETECTION_RANGE = 350.0
 const MAX_HEALTH = 1000
-const BURN_DURATION = 3.0
-const BURN_TICK_RATE = 1.0 / 3.0
-const MAX_BURN_STACKS = 10
+
+# Configuração de cada tipo de DOT: tick_rate, duration, max_stacks, color, label
+const DOT_CONFIG := {
+	"fire":   {"tick_rate": 1.0 / 3.0, "duration": 3.0, "max_stacks": 10, "color": Color(1.0, 0.5, 0.0),  "label": "F"},
+	"poison": {"tick_rate": 0.5,        "duration": 5.0, "max_stacks": 20, "color": Color(0.2, 0.85, 0.15), "label": "V"},
+}
 
 var health := MAX_HEALTH
 var _player: Node2D = null
-var _burn_stacks := 0
-var _burn_timer := 0.0
-var _burn_remaining := 0.0
+var _dots := {}  # { type: {stacks, remaining, timer} }
 
 
 func _ready() -> void:
@@ -27,18 +28,25 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+	_tick_dots(delta)
 
-	if _burn_remaining > 0.0:
-		_burn_remaining -= delta
-		_burn_timer += delta
-		while _burn_timer >= BURN_TICK_RATE:
-			_burn_timer -= BURN_TICK_RATE
-			take_damage(_burn_stacks)
-		if _burn_remaining <= 0.0:
-			_burn_stacks = 0
-			_burn_remaining = 0.0
-			_burn_timer = 0.0
-			queue_redraw()
+
+func _tick_dots(delta: float) -> void:
+	var expired := []
+	for type in _dots:
+		var dot: Dictionary = _dots[type]
+		var cfg: Dictionary = DOT_CONFIG[type]
+		dot["remaining"] -= delta
+		dot["timer"] += delta
+		while dot["timer"] >= cfg["tick_rate"]:
+			dot["timer"] -= cfg["tick_rate"]
+			take_damage(dot["stacks"])
+		if dot["remaining"] <= 0.0:
+			expired.append(type)
+	for type in expired:
+		_dots.erase(type)
+	if expired.size() > 0:
+		queue_redraw()
 
 
 func take_damage(amount: int) -> void:
@@ -49,9 +57,14 @@ func take_damage(amount: int) -> void:
 		queue_free()
 
 
-func apply_burn() -> void:
-	_burn_stacks = mini(_burn_stacks + 1, MAX_BURN_STACKS)
-	_burn_remaining = BURN_DURATION
+func apply_dot(type: String) -> void:
+	if not DOT_CONFIG.has(type):
+		return
+	if not _dots.has(type):
+		_dots[type] = {"stacks": 0, "remaining": 0.0, "timer": 0.0}
+	var cfg: Dictionary = DOT_CONFIG[type]
+	_dots[type]["stacks"] = mini(_dots[type]["stacks"] + 1, cfg["max_stacks"])
+	_dots[type]["remaining"] = cfg["duration"]
 	queue_redraw()
 
 
@@ -66,13 +79,15 @@ func _draw() -> void:
 	var font := ThemeDB.fallback_font
 	const FONT_SIZE := 9
 
-	# Outline do contorno varia com stacks de fogo
+	# Outline — muda de cor com o DOT mais pesado ativo
 	var outline := Color(1.0, 0.3, 0.3)
 	var outline_w := 1.5
-	if _burn_stacks > 0:
-		var t := float(_burn_stacks) / float(MAX_BURN_STACKS)
-		outline = Color(1.0, 0.45 + t * 0.55, t * 0.3)
-		outline_w = 1.5 + t * 2.5
+	for type in _dots:
+		var dot: Dictionary = _dots[type]
+		if dot["stacks"] > 0:
+			var t := float(dot["stacks"]) / float(DOT_CONFIG[type]["max_stacks"])
+			outline = DOT_CONFIG[type]["color"]
+			outline_w = 1.5 + t * 2.5
 
 	var pts := PackedVector2Array([
 		Vector2(0, -20), Vector2(16, 0), Vector2(0, 20), Vector2(-16, 0),
@@ -89,16 +104,20 @@ func _draw() -> void:
 	draw_rect(Rect2(bx, by, BAR_W, BAR_H), Color(0.15, 0.15, 0.15))
 	draw_rect(Rect2(bx, by, fill, BAR_H), Color(0.2, 0.85, 0.2))
 	draw_rect(Rect2(bx, by, BAR_W, BAR_H), Color(0, 0, 0), false, 1.0)
-
-	var hp_text := "%d/%d" % [health, MAX_HEALTH]
-	draw_string(font, Vector2(bx, by + BAR_H - 1.0), hp_text,
+	draw_string(font, Vector2(bx, by + BAR_H - 1.0), "%d/%d" % [health, MAX_HEALTH],
 			HORIZONTAL_ALIGNMENT_CENTER, BAR_W, FONT_SIZE, Color.BLACK)
 
-	# Quadradinho de stacks de fogo
-	if _burn_stacks > 0:
-		const SQ := 14.0
-		var sq_pos := Vector2(BAR_W / 2.0 + 4.0, by)
-		draw_rect(Rect2(sq_pos, Vector2(SQ, SQ)), Color(0.15, 0.15, 0.15))
-		draw_rect(Rect2(sq_pos, Vector2(SQ, SQ)), Color(1.0, 0.5, 0.0), false, 1.0)
-		draw_string(font, Vector2(sq_pos.x, sq_pos.y + SQ - 2.0), str(_burn_stacks),
-				HORIZONTAL_ALIGNMENT_CENTER, SQ, FONT_SIZE, Color(1.0, 0.8, 0.0))
+	# Quadradinhos de DOT ativos
+	const SQ := 14.0
+	var sq_x := BAR_W / 2.0 + 4.0
+	for type in _dots:
+		var dot: Dictionary = _dots[type]
+		if dot["stacks"] == 0:
+			continue
+		var cfg: Dictionary = DOT_CONFIG[type]
+		var sq_pos := Vector2(sq_x, by)
+		draw_rect(Rect2(sq_pos, Vector2(SQ, SQ)), Color(0.1, 0.1, 0.1))
+		draw_rect(Rect2(sq_pos, Vector2(SQ, SQ)), cfg["color"], false, 1.0)
+		draw_string(font, Vector2(sq_pos.x, sq_pos.y + SQ - 2.0), str(dot["stacks"]),
+				HORIZONTAL_ALIGNMENT_CENTER, SQ, FONT_SIZE, cfg["color"].lightened(0.4))
+		sq_x += SQ + 3.0

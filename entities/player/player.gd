@@ -2,25 +2,20 @@ extends CharacterBody2D
 
 const ARROW_SCENE = preload("res://skills/arrow/arrow.tscn")
 
-
-func _ready() -> void:
-	add_to_group("player")
-
 const SPEED = 200.0
 const DASH_SPEED = 600.0
 const DASH_DURATION = 0.15
 const DASH_COOLDOWN = 1.0
 const ATTACK_COOLDOWN = 0.3
-const SKILL_COOLDOWN = 1.5
 const SKILL_FOLEGO_COST = 30.0
+const SKILL_COOLDOWNS := {"fire": 1.5, "poison": 0.25}
 
 const MAX_HEALTH = 100
 const MAX_FOLEGO = 100.0
-const FOLEGO_REGEN = 25.0  # por segundo em movimento
-const FOLEGO_DRAIN = 10.0  # por segundo parado
+const FOLEGO_REGEN = 25.0
+const FOLEGO_DRAIN = 10.0
 
 var health := MAX_HEALTH
-
 var folego := MAX_FOLEGO
 
 var _is_dashing := false
@@ -29,7 +24,12 @@ var _dash_cooldown := 0.0
 var _dash_direction := Vector2.ZERO
 var _last_direction := Vector2.DOWN
 var _attack_cooldown := 0.0
-var _skill_cooldown := 0.0
+var _skill_cooldowns := {"fire": 0.0, "poison": 0.0}
+var _skill_bar: Node = null
+
+
+func _ready() -> void:
+	add_to_group("player")
 
 
 func _physics_process(delta: float) -> void:
@@ -61,8 +61,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _tick_timers(delta: float) -> void:
 	if _attack_cooldown > 0.0:
 		_attack_cooldown -= delta
-	if _skill_cooldown > 0.0:
-		_skill_cooldown -= delta
+	for key in _skill_cooldowns:
+		if _skill_cooldowns[key] > 0.0:
+			_skill_cooldowns[key] -= delta
 	if _dash_cooldown > 0.0:
 		_dash_cooldown -= delta
 	if _is_dashing:
@@ -84,7 +85,11 @@ func _attack() -> void:
 	var arrow := ARROW_SCENE.instantiate()
 	get_parent().add_child(arrow)
 	arrow.global_position = global_position
-	arrow.init(dir)
+	arrow.init(dir, Color(0.75, 0.75, 0.75), "", 0.0, _on_arrow_hit)
+
+
+func _on_arrow_hit() -> void:
+	folego = minf(folego + 10.0, MAX_FOLEGO)
 
 
 func _dash() -> void:
@@ -98,23 +103,36 @@ func _dash() -> void:
 
 
 func _skill() -> void:
-	if _skill_cooldown > 0.0 or folego < SKILL_FOLEGO_COST:
+	if _skill_bar == null:
+		_skill_bar = get_tree().get_first_node_in_group("skill_bar")
+	var selected: String = _skill_bar.get_selected_skill() if _skill_bar != null else "fire"
+
+	if _skill_cooldowns.get(selected, 0.0) > 0.0 or folego < SKILL_FOLEGO_COST:
 		return
-	_skill_cooldown = SKILL_COOLDOWN
+	_skill_cooldowns[selected] = SKILL_COOLDOWNS.get(selected, 1.5)
 	folego -= SKILL_FOLEGO_COST
 
+	match selected:
+		"fire":   _cast_fire_arrows()
+		"poison": _cast_poison_arrow()
+
+
+func _cast_fire_arrows() -> void:
 	var mouse_pos := get_global_mouse_position()
 	var base_dir := (mouse_pos - global_position).normalized()
-	var fire_color := Color(1.0, 0.35, 0.05)
-
-	# Mouse perto = leque aberto, mouse longe = leque fechado
 	var dist := global_position.distance_to(mouse_pos)
-	var spread := remap(dist, 40.0, 600.0, 0.2, 0.003)
-	spread = clampf(spread, 0.003, 0.2)
+	var spread := clampf(remap(dist, 40.0, 600.0, 0.2, 0.003), 0.003, 0.2)
 
 	for angle in [-spread, 0.0, spread]:
-		var dir := base_dir.rotated(angle)
 		var arrow := ARROW_SCENE.instantiate()
 		get_parent().add_child(arrow)
 		arrow.global_position = global_position
-		arrow.init(dir, fire_color, true)
+		arrow.init(base_dir.rotated(angle), Color(1.0, 0.35, 0.05), "fire", 0.25)
+
+
+func _cast_poison_arrow() -> void:
+	var dir := (get_global_mouse_position() - global_position).normalized()
+	var arrow := ARROW_SCENE.instantiate()
+	get_parent().add_child(arrow)
+	arrow.global_position = global_position
+	arrow.init(dir, Color(0.2, 0.85, 0.15), "poison", 0.35)

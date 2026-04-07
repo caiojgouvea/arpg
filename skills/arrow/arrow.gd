@@ -3,18 +3,21 @@ extends Area2D
 const SPEED = 600.0
 const MAX_RANGE = 900.0
 const DAMAGE = 10
-const BURN_CHANCE = 0.25
 
 var _direction := Vector2.RIGHT
 var _traveled := 0.0
 var _color := Color(0.75, 0.75, 0.75)
-var _is_fire := false
+var _dot_type := ""
+var _dot_chance := 0.0
+var _on_hit := Callable()
 
 
-func init(dir: Vector2, color: Color = Color(0.75, 0.75, 0.75), is_fire: bool = false) -> void:
+func init(dir: Vector2, color: Color = Color(0.75, 0.75, 0.75), dot_type: String = "", dot_chance: float = 0.0, on_hit: Callable = Callable()) -> void:
 	_direction = dir
 	_color = color
-	_is_fire = is_fire
+	_dot_type = dot_type
+	_dot_chance = dot_chance
+	_on_hit = on_hit
 	rotation = dir.angle()
 
 
@@ -26,8 +29,10 @@ func _ready() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(DAMAGE)
-		if _is_fire and randf() < BURN_CHANCE and body.has_method("apply_burn"):
-			body.apply_burn()
+		if _dot_type != "" and randf() < _dot_chance and body.has_method("apply_dot"):
+			body.apply_dot(_dot_type)
+		if _on_hit.is_valid():
+			_on_hit.call()
 		queue_free()
 
 
