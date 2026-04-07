@@ -2,6 +2,10 @@ extends CharacterBody2D
 
 const ARROW_SCENE = preload("res://skills/arrow/arrow.tscn")
 
+
+func _ready() -> void:
+	add_to_group("player")
+
 const SPEED = 200.0
 const DASH_SPEED = 600.0
 const DASH_DURATION = 0.15

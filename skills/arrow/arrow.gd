@@ -2,6 +2,7 @@ extends Area2D
 
 const SPEED = 600.0
 const MAX_RANGE = 900.0
+const DAMAGE = 10
 
 var _direction := Vector2.RIGHT
 var _traveled := 0.0
@@ -15,7 +16,14 @@ func init(dir: Vector2, color: Color = Color(0.75, 0.75, 0.75)) -> void:
 
 
 func _ready() -> void:
+	body_entered.connect(_on_body_entered)
 	queue_redraw()
+
+
+func _on_body_entered(body: Node2D) -> void:
+	if body.has_method("take_damage"):
+		body.take_damage(DAMAGE)
+	queue_free()
 
 
 func _process(delta: float) -> void:
