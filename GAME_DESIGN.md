@@ -274,7 +274,7 @@ Grinda dungeons mais difíceis
 ## PERSPECTIVA E CONTROLES
 
 - **Câmera:** Isométrica fixa (estilo PoE/Diablo)
-- **Movimento:** A definir (clique ou WASD)
+- **Movimento:** WASD ✅
 - **Combate:** Tempo real, hordas de inimigos
 
 ---
@@ -288,6 +288,28 @@ Grinda dungeons mais difíceis
 
 ---
 
+## ROADMAP DE DESENVOLVIMENTO
+
+### Próximos passos (loop jogável)
+- [ ] Inimigo ataca o player — sem isso não há tensão
+- [ ] Player morre ao chegar em 0 HP — game over / respawn
+- [ ] XP ao matar inimigo + barra de XP no HUD
+- [ ] Level up — abre painel de atributos automaticamente com os pontos
+- [ ] Spawner de inimigos — spawn contínuo ou por waves
+- [ ] Loot básico — item cai no chão ao matar, player coleta
+
+### Sistemas a implementar depois
+- [ ] Árvore de talentos (estrutura triangular definida no design)
+- [ ] Sistema de inventário
+- [ ] Sistema de loot com raridades e afixos
+- [ ] Mais skills (todas as 6 classes de efeito de status)
+- [ ] Variedade de inimigos
+- [ ] Mapa com obstáculos e colisão
+- [ ] Sistema de save
+- [ ] UI de inventário e equipamentos
+
+---
+
 ## PENDÊNCIAS E DECISÕES FUTURAS
 
 - [ ] Nome do jogo
@@ -297,7 +319,6 @@ Grinda dungeons mais difíceis
 - [ ] Sistema de skills detalhado
 - [ ] Afixos dos itens por raridade
 - [ ] Árvore de talentos detalhada (nós específicos)
-- [ ] Sistema de movimento (clique vs WASD)
 - [ ] Progressão de atributos (quanto por nível/item)
 - [ ] Sistema de inventário
 - [ ] Sistema de save

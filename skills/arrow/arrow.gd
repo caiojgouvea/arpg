@@ -28,7 +28,8 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
-		body.take_damage(DAMAGE)
+		var dmg_type := _dot_type if _dot_type != "" else "physical"
+		body.take_damage(DAMAGE, dmg_type)
 		if _dot_type != "" and randf() < _dot_chance and body.has_method("apply_dot"):
 			body.apply_dot(_dot_type)
 		if _on_hit.is_valid():

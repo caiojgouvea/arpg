@@ -7,6 +7,12 @@ const DETECTION_RANGE = 350.0
 const MAX_HEALTH = 1000
 
 # Configuração de cada tipo de DOT: tick_rate, duration, max_stacks, color, label
+const DAMAGE_COLORS := {
+	"physical": Color(1.0, 1.0, 1.0),
+	"fire":     Color(1.0, 0.4, 0.1),
+	"poison":   Color(0.2, 0.9, 0.2),
+}
+
 const DOT_CONFIG := {
 	"fire":   {"tick_rate": 1.0 / 3.0, "duration": 3.0, "max_stacks": 10, "color": Color(1.0, 0.5, 0.0),  "label": "F"},
 	"poison": {"tick_rate": 0.5,        "duration": 5.0, "max_stacks": 20, "color": Color(0.2, 0.85, 0.15), "label": "V"},
@@ -40,7 +46,7 @@ func _tick_dots(delta: float) -> void:
 		dot["timer"] += delta
 		while dot["timer"] >= cfg["tick_rate"]:
 			dot["timer"] -= cfg["tick_rate"]
-			take_damage(dot["stacks"])
+			take_damage(dot["stacks"], type)
 		if dot["remaining"] <= 0.0:
 			expired.append(type)
 	for type in expired:
@@ -49,10 +55,11 @@ func _tick_dots(delta: float) -> void:
 		queue_redraw()
 
 
-func take_damage(amount: int) -> void:
+func take_damage(amount: int, type: String = "physical") -> void:
 	health -= amount
 	queue_redraw()
-	_spawn_damage_number(amount)
+	var color: Color = DAMAGE_COLORS.get(type, Color.WHITE)
+	_spawn_damage_number(amount, color)
 	if health <= 0:
 		queue_free()
 
@@ -68,11 +75,11 @@ func apply_dot(type: String) -> void:
 	queue_redraw()
 
 
-func _spawn_damage_number(amount: int) -> void:
+func _spawn_damage_number(amount: int, color: Color = Color.WHITE) -> void:
 	var dn := DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(dn)
 	dn.global_position = global_position + Vector2(randf_range(-8.0, 8.0), -25.0)
-	dn.init(amount)
+	dn.init(amount, color)
 
 
 func _draw() -> void:
