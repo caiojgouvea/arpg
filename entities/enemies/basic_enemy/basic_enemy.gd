@@ -30,6 +30,7 @@ var _attack_flash := 0.0
 
 
 func _ready() -> void:
+	add_to_group("enemy")
 	_player = get_tree().get_first_node_in_group("player")
 	queue_redraw()
 
@@ -97,17 +98,7 @@ func take_damage(amount: int, type: String = "physical") -> void:
 func _die() -> void:
 	if _player != null and _player.has_method("gain_xp"):
 		_player.gain_xp(XP_REWARD)
-	_spawn_replacement()
 	queue_free()
-
-
-func _spawn_replacement() -> void:
-	var enemy: Node2D = load("res://entities/enemies/basic_enemy/basic_enemy.tscn").instantiate()
-	get_parent().add_child(enemy)
-	var angle := randf() * TAU
-	var dist := randf_range(350.0, 550.0)
-	var origin := _player.global_position if _player != null else global_position
-	enemy.global_position = origin + Vector2(cos(angle), sin(angle)) * dist
 
 
 func apply_dot(type: String) -> void:

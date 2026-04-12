@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://n2pv8cxwqtm4r" path="res://hud/skill_bar.gd" id="6_skillbar"]
 [ext_resource type="Script" uid="uid://p4rw6mxqvth9s" path="res://hud/stat_panel.gd" id="7_statpanel"]
 [ext_resource type="Script" uid="uid://1afc4y7iyx1a" path="res://hud/talent_tree.gd" id="8_talenttree"]
+[ext_resource type="Script" path="res://world/spawner.gd" id="9_spawner"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fj7yv"]
 
@@ -39,8 +40,8 @@ position_smoothing_speed = 5.0
 z_index = 10
 script = ExtResource("3_cursor")
 
-[node name="BasicEnemy" parent="." instance=ExtResource("4_enemy")]
-position = Vector2(200, 100)
+[node name="Spawner" type="Node2D" parent="."]
+script = ExtResource("9_spawner")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
