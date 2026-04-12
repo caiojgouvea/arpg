@@ -12,11 +12,14 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	var dead: bool = player != null and player.dead
 	var paused := get_tree().paused
-	visible = not paused
-	if paused:
+	if paused or dead:
+		visible = false
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
+		visible = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 		global_position = get_global_mouse_position()
 

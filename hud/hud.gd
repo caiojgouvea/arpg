@@ -22,14 +22,13 @@ func _process(delta: float) -> void:
 	if _levelup_timer > 0.0:
 		_levelup_timer -= delta
 	queue_redraw()
-	if _player != null and _player.dead and Input.is_action_just_pressed("ui_accept"):
-		get_tree().reload_current_scene()
-
-
 func _input(event: InputEvent) -> void:
 	if _player != null and _player.dead:
-		if event is InputEventKey and event.pressed and event.physical_keycode == KEY_R:
-			get_tree().reload_current_scene()
+		if event is InputEventKey and event.pressed:
+			if event.physical_keycode == KEY_R:
+				get_tree().reload_current_scene()
+			elif event.physical_keycode == KEY_ENTER:
+				get_tree().change_scene_to_file("res://ui/main_menu/main_menu.tscn")
 
 
 func _draw() -> void:
@@ -68,7 +67,7 @@ func _draw_death_screen() -> void:
 	draw_rect(Rect2(Vector2.ZERO, vp), Color(0.0, 0.0, 0.0, 0.65))
 	draw_string(font, Vector2(0.0, vp.y / 2.0 - 20.0), "YOU'VE DIED",
 			HORIZONTAL_ALIGNMENT_CENTER, vp.x, 32, Color(0.85, 0.1, 0.1))
-	draw_string(font, Vector2(0.0, vp.y / 2.0 + 20.0), "[R] Retry or [Enter] Main Menu",
+	draw_string(font, Vector2(0.0, vp.y / 2.0 + 20.0), "[R] Retry   [Enter] Menu",
 			HORIZONTAL_ALIGNMENT_CENTER, vp.x, 14, Color(0.7, 0.7, 0.7))
 
 
