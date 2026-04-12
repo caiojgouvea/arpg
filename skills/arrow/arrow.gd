@@ -1,24 +1,30 @@
 extends Area2D
 
-const SPEED = 600.0
-const MAX_RANGE = 900.0
+const SPEED  = 600.0
 const DAMAGE = 10
 
-var _direction := Vector2.RIGHT
-var _traveled := 0.0
-var _color := Color(0.75, 0.75, 0.75)
-var _dot_type := ""
+var _direction  := Vector2.RIGHT
+var _traveled   := 0.0
+var _max_range  := 900.0
+var _color      := Color(0.75, 0.75, 0.75)
+var _dot_type   := ""
 var _dot_chance := 0.0
-var _on_hit := Callable()
+var _on_hit     := Callable()
+var _pierce     := 0
+var _hit_bodies : Array = []
 
 
-func init(dir: Vector2, color: Color = Color(0.75, 0.75, 0.75), dot_type: String = "", dot_chance: float = 0.0, on_hit: Callable = Callable()) -> void:
-	_direction = dir
-	_color = color
-	_dot_type = dot_type
+func init(dir: Vector2, color: Color = Color(0.75, 0.75, 0.75), dot_type: String = "",
+		dot_chance: float = 0.0, on_hit: Callable = Callable(),
+		pierce: int = 0, max_range: float = 900.0) -> void:
+	_direction  = dir
+	_color      = color
+	_dot_type   = dot_type
 	_dot_chance = dot_chance
-	_on_hit = on_hit
-	rotation = dir.angle()
+	_on_hit     = on_hit
+	_pierce     = pierce
+	_max_range  = max_range
+	rotation    = dir.angle()
 
 
 func _ready() -> void:
@@ -29,6 +35,10 @@ func _ready() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		return
+	if body in _hit_bodies:
+		return
+	_hit_bodies.append(body)
+
 	if body.has_method("take_damage"):
 		var dmg_type := _dot_type if _dot_type != "" else "physical"
 		body.take_damage(DAMAGE, dmg_type)
@@ -36,6 +46,9 @@ func _on_body_entered(body: Node2D) -> void:
 			body.apply_dot(_dot_type)
 		if _on_hit.is_valid():
 			_on_hit.call()
+
+	_pierce -= 1
+	if _pierce < 0:
 		queue_free()
 
 
@@ -43,7 +56,7 @@ func _process(delta: float) -> void:
 	var step := _direction * SPEED * delta
 	global_position += step
 	_traveled += step.length()
-	if _traveled >= MAX_RANGE:
+	if _traveled >= _max_range:
 		queue_free()
 
 

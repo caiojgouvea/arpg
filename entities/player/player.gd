@@ -22,27 +22,37 @@ var instinct := 0
 var arcane := 0
 var attribute_points := 5
 var level := 1
-var talent_points := 0
+var talent_points := 100
 var xp := 0
 var xp_to_next := 30
+
+# Bônus de talentos
+var talent_folego_bonus  := 0.0
+var talent_phys_dmg      := 0
+var talent_atk_speed     := 0.0
+var talent_crit          := 0.0
+var talent_folego_on_hit := 0.0
+var talent_arrow_range   := 0.0
+var talent_fire_chance   := 0.0
+var arrow_pierce         := 0
 
 # Stats derivados — calculados em tempo real
 var MAX_HEALTH: int:
 	get: return BASE_HEALTH + fury * 5
 var MAX_FOLEGO: float:
-	get: return BASE_FOLEGO + instinct * 5.0
+	get: return BASE_FOLEGO + instinct * 5.0 + talent_folego_bonus
 var MAX_MANA: float:
 	get: return BASE_MANA + arcane * 5.0
 var move_speed: float:
 	get: return BASE_SPEED * (1.0 + instinct * 0.005)
 var attack_speed: float:
-	get: return 1.0 + instinct * 0.02
+	get: return 1.0 + instinct * 0.02 + talent_atk_speed
 var physical_damage: int:
-	get: return fury * 2
+	get: return fury * 2 + talent_phys_dmg
 var magic_damage: int:
 	get: return arcane * 2
 var crit_chance: float:
-	get: return instinct * 0.003
+	get: return instinct * 0.003 + talent_crit
 
 var health := BASE_HEALTH
 var folego := BASE_FOLEGO
@@ -162,11 +172,13 @@ func _attack() -> void:
 	var arrow := ARROW_SCENE.instantiate()
 	get_parent().add_child(arrow)
 	arrow.global_position = global_position
-	arrow.init(dir, Color(0.75, 0.75, 0.75), "", 0.0, _on_arrow_hit)
+	var dot_t     := "fire" if talent_fire_chance > 0.0 else ""
+	var arrow_col := Color(1.0, 0.55, 0.2) if talent_fire_chance > 0.0 else Color(0.75, 0.75, 0.75)
+	arrow.init(dir, arrow_col, dot_t, talent_fire_chance, _on_arrow_hit, arrow_pierce, 900.0 + talent_arrow_range)
 
 
 func _on_arrow_hit() -> void:
-	folego = minf(folego + 10.0, MAX_FOLEGO)
+	folego = minf(folego + 10.0 + talent_folego_on_hit, MAX_FOLEGO)
 
 
 func _dash() -> void:
@@ -204,7 +216,7 @@ func _cast_fire_arrows() -> void:
 		var arrow := ARROW_SCENE.instantiate()
 		get_parent().add_child(arrow)
 		arrow.global_position = global_position
-		arrow.init(base_dir.rotated(angle), Color(1.0, 0.35, 0.05), "fire", 0.25)
+		arrow.init(base_dir.rotated(angle), Color(1.0, 0.35, 0.05), "fire", 0.25, Callable(), arrow_pierce, 900.0 + talent_arrow_range)
 
 
 func _cast_poison_arrow() -> void:
@@ -212,4 +224,4 @@ func _cast_poison_arrow() -> void:
 	var arrow := ARROW_SCENE.instantiate()
 	get_parent().add_child(arrow)
 	arrow.global_position = global_position
-	arrow.init(dir, Color(0.2, 0.85, 0.15), "poison", 0.35)
+	arrow.init(dir, Color(0.2, 0.85, 0.15), "poison", 0.35, Callable(), arrow_pierce, 900.0 + talent_arrow_range)
